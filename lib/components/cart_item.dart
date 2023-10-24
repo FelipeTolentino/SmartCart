@@ -35,7 +35,7 @@ class _CartItemState extends State<CartItem> {
       padding: const EdgeInsets.all(5),
       child: Container(
         // color: Colors.black,
-          height: 120,
+          height: 100,
           decoration: BoxDecoration(
               color: const Color.fromARGB(255, 235, 235, 235),
               borderRadius: BorderRadius.circular(8)
@@ -49,7 +49,7 @@ class _CartItemState extends State<CartItem> {
                 child: Text(widget.name!,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18
+                      fontSize: 15
                   ),
                 ),
               ),
@@ -58,13 +58,16 @@ class _CartItemState extends State<CartItem> {
                 children: [
                   Column(
                     children: [
-                      const Text('unidades', style: TextStyle(fontWeight: FontWeight.w200)),
+                      const Text('unidades', style: TextStyle(
+                          fontWeight: FontWeight.w200,
+                          fontSize: 10
+                      )),
                       Row(
                         children: [
                           IconButton(
                               icon: const Icon(Icons.remove_circle,
                                 color: Color.fromARGB(255, 96, 232, 142),
-                                size: 35,
+                                size: 25,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -80,12 +83,12 @@ class _CartItemState extends State<CartItem> {
                               }
                           ),
                           Text(widget.quantity!.toString(),
-                              style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold)
+                              style: const TextStyle(fontSize: 18,fontWeight: FontWeight.bold)
                           ),
                           IconButton(
                               icon: const Icon(Icons.add_circle,
                                 color: Color.fromARGB(255, 96, 232, 142),
-                                size: 35,
+                                size: 25,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -107,12 +110,13 @@ class _CartItemState extends State<CartItem> {
                         Text('${widget.quantity!} x R\$ ${currentCart.formatCurrency(widget.price.toStringAsFixed(2))}',
                             style: const TextStyle(
                                 color: Color.fromARGB(255, 67, 181, 105),
-                                fontWeight: FontWeight.w600
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12
                             )
                         ),
                         Text('R\$ ${currentCart.formatCurrency(widget.itemTotalPrice().toStringAsFixed(2))}',
                             style: const TextStyle(
-                                fontSize: 35,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold
                             )
                         )
