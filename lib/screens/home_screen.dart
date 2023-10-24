@@ -34,7 +34,9 @@ class NewCartScreen extends StatelessWidget {
                     ),
                     iconSize: 80,
                     onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (newContext) => CurrentCart(child: CartScreen())));
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (newContext) => CurrentCart(child: CartScreen(homeContext: context))
+                      ));
                     }
                 ),
               ),

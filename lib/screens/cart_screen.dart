@@ -1,14 +1,15 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:smartcart/screens/dialogs/cart_header_form.dart';
 import 'package:smartcart/screens/dialogs/delete_cart_warning.dart';
 import 'package:text_scroll/text_scroll.dart';
-import '../components/cart_item.dart';
+import '../data/DAO_cart.dart';
 import '../data/current_cart.dart';
 import 'dialogs/item_form.dart';
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({super.key});
+  CartScreen({required this.homeContext, super.key});
+
+  BuildContext homeContext;
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -101,7 +102,7 @@ class _CartScreenState extends State<CartScreen> {
                           child: IconButton(
                             icon: const Icon(Icons.shopping_cart_checkout, color: Color.fromARGB(255, 96, 232, 142)),
                             iconSize: 40,
-                            onPressed: (){
+                            onPressed: () async {
                               if (currentCart.items.isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -111,7 +112,19 @@ class _CartScreenState extends State<CartScreen> {
                                 );
                               }
                               else {
+                                var result = await DAOCart().save(currentCart.items, currentCart.cartName, currentCart.marketName);
+                                if (result == 0) {
+                                  ScaffoldMessenger.of(widget.homeContext).showSnackBar(
+                                    const SnackBar(content: Text('Carrinho salvo!'))
+                                  );
+                                }
+                                else {
+                                  ScaffoldMessenger.of(widget.homeContext).showSnackBar(
+                                      const SnackBar(content: Text('Desculpe! Algum erro ocorreu...'))
+                                  );
+                                }
 
+                                Navigator.pop(context);
                               }
                             },
                           )
@@ -157,13 +170,6 @@ class _CartScreenState extends State<CartScreen> {
               padding: const EdgeInsets.only(top: 5, bottom: 15),
               child: Column(
                 children: [
-                  // DottedBorder(
-                  //   borderType: BorderType.RRect,
-                  //   radius: const Radius.circular(8),
-                  //   dashPattern: const [10, 8],
-                  //   strokeWidth: 5,
-                  //   child:
-                  // ),
                 const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text('Adicionar Item', style: TextStyle(color: Colors.grey)),
