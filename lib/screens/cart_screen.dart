@@ -1,10 +1,11 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:smartcart/screens/dialogs/cart_header_form_dialog.dart';
+import 'package:smartcart/screens/dialogs/cart_header_form.dart';
+import 'package:smartcart/screens/dialogs/delete_cart_warning.dart';
 import 'package:text_scroll/text_scroll.dart';
 import '../components/cart_item.dart';
 import '../data/current_cart.dart';
-import 'dialogs/item_form_dialog.dart';
+import 'dialogs/item_form.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -31,7 +32,17 @@ class _CartScreenState extends State<CartScreen> {
         backgroundColor: const Color.fromARGB(255, 96, 232, 142),
         leading: BackButton(
           color: Colors.white,
-          onPressed: () { Navigator.pop(context); },
+          onPressed: () { 
+            if (currentCart.items.isNotEmpty) {
+              showDialog(
+                context: context,
+                builder: (context) => const DeleteCartWarning()
+              );
+            }
+            else {
+              Navigator.pop(context);
+            }
+          },
         ),
         title: TextScroll(
           '${currentCart.cartName} - ${currentCart.marketName} - ${currentCart.date}       ',
@@ -46,7 +57,7 @@ class _CartScreenState extends State<CartScreen> {
               onPressed: () {
                 showDialog(
                   context: context,
-                  builder: (newContext) => CartHeaderDialog(cartContext: context)
+                  builder: (newContext) => CartHeaderForm(cartContext: context)
                 ).then((value) => setState((){}));
               }
           )
@@ -210,7 +221,7 @@ class _CartScreenState extends State<CartScreen> {
                                     onPressed: () {
                                       showDialog(
                                           context: context,
-                                          builder: (newContext) => NewItemDialog(cartContext: context)
+                                          builder: (newContext) => NewItemForm(cartContext: context)
                                       ).then((value) => { setState((){ print('rebuilding cart screen'); }) });
                                     },
                                   ),

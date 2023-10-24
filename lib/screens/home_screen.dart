@@ -22,12 +22,6 @@ class NewCartScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // DottedBorder(
-              //   borderType: BorderType.Circle,
-              //   dashPattern: const [10, 10],
-              //   strokeWidth: 5,
-              //   child:
-              //   ),
               Ink(
                 padding: const EdgeInsets.all(15),
                 decoration: const ShapeDecoration(

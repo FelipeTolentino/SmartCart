@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:smartcart/data/current_cart.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
-class NewItemDialog extends StatefulWidget {
-  NewItemDialog({required this.cartContext, super.key});
+class NewItemForm extends StatefulWidget {
+  NewItemForm({required this.cartContext, super.key});
 
   final formKey = GlobalKey<FormState>();
   final BuildContext cartContext;
@@ -13,10 +13,10 @@ class NewItemDialog extends StatefulWidget {
   int newItemQnty = 1;
 
   @override
-  State<NewItemDialog> createState() => _NewItemDialogState();
+  State<NewItemForm> createState() => _NewItemFormState();
 }
 
-class _NewItemDialogState extends State<NewItemDialog> {
+class _NewItemFormState extends State<NewItemForm> {
   @override
   Widget build(BuildContext context) {
     var currentCart = CurrentCart.of(widget.cartContext);

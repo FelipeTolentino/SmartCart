@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../data/current_cart.dart';
 
-class CartHeaderDialog extends StatefulWidget {
-  CartHeaderDialog({required this.cartContext, super.key});
+class CartHeaderForm extends StatefulWidget {
+  CartHeaderForm({required this.cartContext, super.key});
 
   final BuildContext cartContext;
   //final formKey = GlobalKey<FormState>();
@@ -13,10 +13,10 @@ class CartHeaderDialog extends StatefulWidget {
 
 
   @override
-  State<CartHeaderDialog> createState() => _CartHeaderDialogState();
+  State<CartHeaderForm> createState() => _CartHeaderFormState();
 }
 
-class _CartHeaderDialogState extends State<CartHeaderDialog> {
+class _CartHeaderFormState extends State<CartHeaderForm> {
   @override
   Widget build(BuildContext context) {
     var currentCart = CurrentCart.of(widget.cartContext);
