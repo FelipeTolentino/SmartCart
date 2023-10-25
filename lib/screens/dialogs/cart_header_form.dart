@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../data/current_cart.dart';
+import '../../data/current_shared.dart';
 
 class CartHeaderForm extends StatefulWidget {
   CartHeaderForm({required this.cartContext, super.key});
@@ -8,7 +8,7 @@ class CartHeaderForm extends StatefulWidget {
   final BuildContext cartContext;
   //final formKey = GlobalKey<FormState>();
 
-  TextEditingController cartNameController = TextEditingController();
+  TextEditingController cartDescriptionController = TextEditingController();
   TextEditingController marketNameController = TextEditingController();
 
 
@@ -19,9 +19,9 @@ class CartHeaderForm extends StatefulWidget {
 class _CartHeaderFormState extends State<CartHeaderForm> {
   @override
   Widget build(BuildContext context) {
-    var currentCart = CurrentCart.of(widget.cartContext);
-    widget.cartNameController.text = currentCart.cartName;
-    widget.marketNameController.text = currentCart.marketName;
+    var shared = CurrentShared.of(widget.cartContext);
+    widget.cartDescriptionController.text = shared.cart.description;
+    widget.marketNameController.text = shared.cart.market;
 
     return Form(
       child: AlertDialog(
@@ -40,7 +40,7 @@ class _CartHeaderFormState extends State<CartHeaderForm> {
                 child: SizedBox(
                   width: 400,
                   child: TextFormField(
-                    controller: widget.cartNameController,
+                    controller: widget.cartDescriptionController,
                     style: const TextStyle(fontWeight: FontWeight.w400),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -48,7 +48,7 @@ class _CartHeaderFormState extends State<CartHeaderForm> {
                         borderSide: BorderSide.none
                       ),
                       contentPadding: const EdgeInsets.only(left: 10),
-                      hintText: currentCart.cartName,
+                      hintText: shared.cart.description,
                       fillColor: Colors.white70,
                       filled: true,
                       errorStyle: const TextStyle(color: Colors.red)
@@ -69,7 +69,7 @@ class _CartHeaderFormState extends State<CartHeaderForm> {
                             borderSide: BorderSide.none
                         ),
                         contentPadding: const EdgeInsets.only(left: 10),
-                        hintText: currentCart.marketName,
+                        hintText: shared.cart.market,
                         fillColor: Colors.white70,
                         filled: true,
                         errorStyle: const TextStyle(color: Colors.red)
@@ -91,8 +91,8 @@ class _CartHeaderFormState extends State<CartHeaderForm> {
               icon: const Icon(Icons.check, color: Colors.white),
               iconSize: 40,
               onPressed: (){
-                currentCart.cartName = widget.cartNameController.text;
-                currentCart.marketName = widget.marketNameController.text;
+                shared.cart.description = widget.cartDescriptionController.text;
+                shared.cart.market = widget.marketNameController.text;
                 ScaffoldMessenger.of(widget.cartContext).showSnackBar(
                     const SnackBar(
                         content: Text('Informações alteradas!'),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../data/current_cart.dart';
+import '../data/current_shared.dart';
+import '../utils/utils.dart';
 
 class CartItem extends StatefulWidget {
   CartItem({
-    required this.name,
+    required this.description,
     required this.quantity,
     required this.price,
     required this.cartContext,
@@ -11,7 +12,7 @@ class CartItem extends StatefulWidget {
   });
 
   BuildContext cartContext;
-  String name;
+  String description;
   int quantity;
   double price;
 
@@ -30,7 +31,7 @@ class CartItem extends StatefulWidget {
 class _CartItemState extends State<CartItem> {
   @override
   Widget build(BuildContext context) {
-    var currentCart = CurrentCart.of(widget.cartContext);
+    var shared = CurrentShared.of(widget.cartContext);
     return Padding(
       padding: const EdgeInsets.all(5),
       child: Container(
@@ -46,7 +47,7 @@ class _CartItemState extends State<CartItem> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(widget.name!,
+                child: Text(widget.description!,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15
@@ -75,10 +76,10 @@ class _CartItemState extends State<CartItem> {
                                     widget.quantity--;
                                   }
                                   else {
-                                    currentCart.items.remove(widget.thisItem());
+                                    shared.cart.items.remove(widget.thisItem());
                                   }
-                                  currentCart.updateCart();
-                                  currentCart.refreshCartScreen!();
+                                  shared.cart.updateCart();
+                                  shared.refreshCartScreen!();
                                 });
                               }
                           ),
@@ -93,8 +94,8 @@ class _CartItemState extends State<CartItem> {
                               onPressed: () {
                                 setState(() {
                                   widget.quantity++;
-                                  currentCart.updateCart();
-                                  currentCart.refreshCartScreen!();
+                                  shared.cart.updateCart();
+                                  shared.refreshCartScreen!();
                                 });
                               }
                           ),
@@ -107,14 +108,14 @@ class _CartItemState extends State<CartItem> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('${widget.quantity!} x R\$ ${currentCart.formatCurrency(widget.price.toStringAsFixed(2))}',
+                        Text('${widget.quantity!} x ${Utils.doubleToCurrency(widget.price)}',
                             style: const TextStyle(
                                 color: Color.fromARGB(255, 67, 181, 105),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12
                             )
                         ),
-                        Text('R\$ ${currentCart.formatCurrency(widget.itemTotalPrice().toStringAsFixed(2))}',
+                        Text(Utils.doubleToCurrency(widget.itemTotalPrice()),
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold

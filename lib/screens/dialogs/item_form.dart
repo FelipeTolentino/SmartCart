@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:smartcart/data/current_cart.dart';
+import 'package:smartcart/data/current_shared.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+
+import '../../utils/utils.dart';
 
 class NewItemForm extends StatefulWidget {
   NewItemForm({required this.cartContext, super.key});
@@ -19,7 +21,7 @@ class NewItemForm extends StatefulWidget {
 class _NewItemFormState extends State<NewItemForm> {
   @override
   Widget build(BuildContext context) {
-    var currentCart = CurrentCart.of(widget.cartContext);
+    var shared = CurrentShared.of(widget.cartContext);
 
     return Form(
       key: widget.formKey,
@@ -141,17 +143,19 @@ class _NewItemFormState extends State<NewItemForm> {
               iconSize: 40,
               onPressed: (){
                 if (widget.formKey.currentState!.validate()) {
-                  currentCart.addItem(
-                    name: widget.itemNameController.text,
-                    price: double.parse(unformatCurrency(widget.itemPriceController.text)),
+                  shared.cart.addItem(
+                    description: widget.itemNameController.text,
+                    price: Utils.currencyToDouble(widget.itemPriceController.text),
                     quantity: widget.newItemQnty,
                     cartContext: widget.cartContext
                   );
-                  currentCart.updateCart();
+                  shared.cart.updateCart();
                   ScaffoldMessenger.of(widget.cartContext).showSnackBar(
                     const SnackBar(
                       content: Text('Item adicionado!'),
-                      behavior: SnackBarBehavior.floating
+                      behavior: SnackBarBehavior.floating,
+                      duration: Duration(seconds: 2),
+                      margin: EdgeInsets.only(right: 20, left: 20, bottom: 90),
                     )
                   );
                   Navigator.pop(context);
@@ -163,11 +167,4 @@ class _NewItemFormState extends State<NewItemForm> {
       ),
     );
   }
-}
-
-String unformatCurrency(String input) {
-  input = input.replaceAll('R\$', "").replaceAll(".", "").trim();
-  print('teste: $input');
-  input = '${input.substring(0, input.length - 3)}.${input.substring(input.length - 2)}';
-  return input;
 }

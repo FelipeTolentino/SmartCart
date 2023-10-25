@@ -3,13 +3,14 @@ import 'package:smartcart/screens/dialogs/cart_header_form.dart';
 import 'package:smartcart/screens/dialogs/delete_cart_warning.dart';
 import 'package:text_scroll/text_scroll.dart';
 import '../data/DAO_cart.dart';
-import '../data/current_cart.dart';
+import '../data/current_shared.dart';
+import '../utils/utils.dart';
 import 'dialogs/item_form.dart';
 
 class CartScreen extends StatefulWidget {
-  CartScreen({required this.homeContext, super.key});
+  const CartScreen({required this.homeContext, super.key});
 
-  BuildContext homeContext;
+  final BuildContext homeContext;
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -24,8 +25,8 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var currentCart = CurrentCart.of(context);
-    currentCart.refreshCartScreen = refreshMe;
+    var shared = CurrentShared.of(context);
+    shared.refreshCartScreen = refreshMe;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -34,7 +35,7 @@ class _CartScreenState extends State<CartScreen> {
         leading: BackButton(
           color: Colors.white,
           onPressed: () { 
-            if (currentCart.items.isNotEmpty) {
+            if (shared.cart.items.isNotEmpty) {
               showDialog(
                 context: context,
                 builder: (context) => const DeleteCartWarning()
@@ -46,7 +47,7 @@ class _CartScreenState extends State<CartScreen> {
           },
         ),
         title: TextScroll(
-          '${currentCart.cartName} - ${currentCart.marketName} - ${currentCart.date}       ',
+          '${shared.cart.description} - ${shared.cart.market} - ${shared.cart.date}       ',
           velocity: const Velocity(pixelsPerSecond: Offset(30, 0)),
           delayBefore: const Duration(seconds: 3),
           pauseBetween: const Duration(seconds: 5),
@@ -79,55 +80,68 @@ class _CartScreenState extends State<CartScreen> {
                       width: 150,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 20),
-                        child: Text(currentCart.cartItemQnty > 1 ?
-                          '${currentCart.cartItemQnty} itens' :
-                          currentCart.cartItemQnty > 0 ?
-                          '1 item' : 'carrinho vazio',
-                            style: const TextStyle(
-                                fontSize: 15, fontWeight:
-                                FontWeight.w400,
-                                color: Colors.black38
-                            )
+                        child: Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(Icons.shopping_basket, size: 35, color: Colors.black54),
+                            ),
+                            Text(shared.cart.itemQuantity > 1 ?
+                              '${shared.cart.itemQuantity} itens' :
+                              shared.cart.itemQuantity > 0 ?
+                              '1 item' : 'Vazio',
+                                style: const TextStyle(
+                                    fontSize: 15, fontWeight:
+                                    FontWeight.w400,
+                                    color: Colors.black54
+                                )
+                            ),
+                          ],
                         ),
                       ),
                     ),
                     Material(
                       color: const Color.fromARGB(255, 96, 232, 142),
                       child: Ink(
-                          padding: const EdgeInsets.all(5),
-                          decoration: const ShapeDecoration(
-                              color: Colors.white,
-                              shape: CircleBorder()
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.shopping_cart_checkout, color: Color.fromARGB(255, 96, 232, 142)),
-                            iconSize: 40,
-                            onPressed: () async {
-                              if (currentCart.items.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Não há itens no carrinho'),
-                                    behavior: SnackBarBehavior.floating,
-                                  )
+                        padding: const EdgeInsets.all(5),
+                        decoration: const ShapeDecoration(
+                            color: Colors.white,
+                            shape: CircleBorder()
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.shopping_cart_checkout, color: Color.fromARGB(255, 96, 232, 142)),
+                          iconSize: 40,
+                          onPressed: () async {
+                            if (shared.cart.items.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Não há itens no carrinho'),
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: Duration(seconds: 2),
+                                )
+                              );
+                            }
+                            else {
+                              var result = await DAOCart().save(shared.cart);
+                              if (result == 0) {
+                                ScaffoldMessenger.of(widget.homeContext).showSnackBar(
+                                  const SnackBar(content: Text('Carrinho salvo!'), behavior: SnackBarBehavior.floating)
                                 );
                               }
                               else {
-                                var result = await DAOCart().save(currentCart.items, currentCart.cartName, currentCart.marketName);
-                                if (result == 0) {
-                                  ScaffoldMessenger.of(widget.homeContext).showSnackBar(
-                                    const SnackBar(content: Text('Carrinho salvo!'))
-                                  );
-                                }
-                                else {
-                                  ScaffoldMessenger.of(widget.homeContext).showSnackBar(
-                                      const SnackBar(content: Text('Desculpe! Algum erro ocorreu...'))
-                                  );
-                                }
-
+                                ScaffoldMessenger.of(widget.homeContext).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Desculpe! Algum erro ocorreu...'),
+                                    behavior: SnackBarBehavior.floating
+                                  )
+                                );
+                              }
+                              if (context.mounted) {
                                 Navigator.pop(context);
                               }
-                            },
-                          )
+                            }
+                          },
+                        )
                       ),
                     ),
                     SizedBox(
@@ -143,7 +157,7 @@ class _CartScreenState extends State<CartScreen> {
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black38
                             )),
-                            Text('R\$ ${currentCart.formatCurrency(currentCart.cartPrice.toStringAsFixed(2))}',
+                            Text(Utils.doubleToCurrency(shared.cart.totalPrice),
                                 style: const TextStyle(
                                     fontSize: 27,
                                     fontWeight: FontWeight.w600,
@@ -160,9 +174,9 @@ class _CartScreenState extends State<CartScreen> {
             SizedBox(
               height: 545, width: 350,
               child: ListView.builder(
-                itemCount: currentCart.items.length,
+                itemCount: shared.cart.items.length,
                 itemBuilder: (context, index) {
-                  return currentCart.items[index];
+                  return shared.cart.items[index];
                 },
               ),
             ),
@@ -195,9 +209,9 @@ class _CartScreenState extends State<CartScreen> {
                                     shape: CircleBorder(),
                                     color: Colors.white
                                   ),
-                                  child: IconButton(
-                                    icon: const Icon(Icons.add_a_photo_rounded),
-                                    onPressed: () {},
+                                  child: const IconButton(
+                                    icon: Icon(Icons.add_a_photo_rounded),
+                                    onPressed: null,
                                   ),
                                 ),
                               ),
@@ -228,7 +242,7 @@ class _CartScreenState extends State<CartScreen> {
                                       showDialog(
                                           context: context,
                                           builder: (newContext) => NewItemForm(cartContext: context)
-                                      ).then((value) => { setState((){ print('rebuilding cart screen'); }) });
+                                      ).then((value) => { setState((){ }) });
                                     },
                                   ),
                                 ),

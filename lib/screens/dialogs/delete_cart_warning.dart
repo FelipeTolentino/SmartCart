@@ -11,7 +11,7 @@ class DeleteCartWarning extends StatelessWidget {
         title: const Text('Atenção!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400)),
         titlePadding: const EdgeInsets.all(10),
         contentPadding: const EdgeInsets.only(left: 15, right: 15, bottom: 20),
-        content: const Text('Ao retornar desta tela os itens do carrinho serão perdidos!'),
+        content: const Text('Ao retornar desta tela os itens do carrinho serão perdidos'),
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
           Ink(
