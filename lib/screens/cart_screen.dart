@@ -209,9 +209,18 @@ class _CartScreenState extends State<CartScreen> {
                                     shape: CircleBorder(),
                                     color: Colors.white
                                   ),
-                                  child: const IconButton(
-                                    icon: Icon(Icons.add_a_photo_rounded),
-                                    onPressed: null,
+                                  child: IconButton(
+                                    icon: Icon(Icons.add_a_photo_rounded, color: Colors.black12),
+                                    onPressed: () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content: Text('Desculpe! Essa opção ainda não está em funcionamento'),
+                                            behavior: SnackBarBehavior.floating,
+                                            duration: Duration(seconds: 5),
+                                            margin: EdgeInsets.only(left: 20, right: 20, bottom: 100),
+                                        )
+                                      );
+                                    },
                                   ),
                                 ),
                               ),
