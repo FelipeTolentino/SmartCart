@@ -105,6 +105,17 @@ class DAOCart{
     return carts.first;
   }
 
+  Future<int> deleteThis(int cartID) async {
+    final Database db = await getDatabase();
+    int result = await db.delete(
+      'carts',
+      where: 'cart_id = ?',
+      whereArgs: [cartID]
+    );
+
+    return result;
+  }
+
   Map<String, dynamic> itemToMap(CartItem item, int cartID) {
     final Map<String, dynamic> itemMap = {};
     itemMap['item_description'] = item.description;

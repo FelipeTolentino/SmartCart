@@ -63,11 +63,12 @@ class _HistoryState extends State<History> {
                 case ConnectionState.done:
                   if (snapshot.hasData && carts != null) {
                     if (carts.isNotEmpty) {
+                      var reversedCarts = carts.reversed.toList();
                       return ListView.builder(
                         itemCount: carts.length,
                         itemBuilder: (context, index) {
-                          return carts[index];
-                        }
+                          return reversedCarts[index];
+                        },
                       );
                     }
                     return const Center(

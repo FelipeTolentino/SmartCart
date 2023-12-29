@@ -4,6 +4,7 @@ import 'package:text_scroll/text_scroll.dart';
 import '../data/DAO_cart.dart';
 import '../data/current_shared.dart';
 import '../utils/utils.dart';
+import './dialogs/confirm_dialog.dart';
 
 class HistoryCartScreen extends StatefulWidget {
   const HistoryCartScreen({required this.cartID, super.key});
@@ -103,6 +104,33 @@ class _HistoryCartScreenState extends State<HistoryCartScreen> {
                         pauseBetween: const Duration(seconds: 5),
                         style: const TextStyle(fontSize: 15, color: Colors.white)
                     ),
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.white),
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (newContext) => ConfirmDialog(
+                                title: "Apagando Carrinho",
+                                message: "Esta ação irá apagar o carrinho permanentemente. Deseja continuar?"
+                              )
+                          ).then((confirmed) async {
+                            if (confirmed) {
+                              var result = await DAOCart().deleteThis(widget.cartID);
+                              if (result > 0) Navigator.pop(context);
+                              else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Um erro ocorreu!'),
+                                      behavior: SnackBarBehavior.floating,
+                                    )
+                                );
+                              }
+                            }
+                          });
+                        }
+                      )
+                    ],
                   ),
                   body: Center(
                     child: Column(

@@ -9,6 +9,7 @@ import '../data/DAO_cart.dart';
 import '../data/current_shared.dart';
 import '../utils/utils.dart';
 import 'dialogs/item_form.dart';
+import './dialogs/confirm_dialog.dart';
 
 enum InsertMethod {
   MANUALLY,
@@ -237,36 +238,12 @@ class _CartScreenState extends State<CartScreen> {
                       var checkout = false;
                       showDialog(
                           context: context,
-                          builder: (newContext) => AlertDialog(
-                            title: const Text('Finaliando Carrinho', style: TextStyle(fontSize: 20)),
-                            titlePadding: const EdgeInsets.all(15),
-                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-                            backgroundColor: Colors.white,
-                            contentPadding: const EdgeInsets.only(left: 15, right: 15, bottom: 20),
-                            content: const SizedBox(
-                              width: 400,
-                              child: Text("Tem certeza que deseja finalizar este carrinho?")
-                            ),
-                            actionsAlignment: MainAxisAlignment.center,
-                            actions: [
-                              Ink(
-                                decoration: const ShapeDecoration(
-                                    shape: CircleBorder(),
-                                    color: Color.fromARGB(255, 96, 232, 142)
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.check, color: Colors.white),
-                                  iconSize: 40,
-                                  onPressed: (){
-                                    checkout = true;
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ),
-                            ],
+                          builder: (newContext) => ConfirmDialog(
+                              title: "Finalizando Carrinho",
+                              message: "Tem certeza que deseja finalizar o carrinho?"
                           )
-                      ).then( (value) async {
-                        if (checkout) {
+                      ).then( (confirmed) async {
+                        if (confirmed) {
                           var result = await DAOCart().save(shared.cart);
                           if (result == 0) {
                             ScaffoldMessenger.of(widget.homeContext).showSnackBar(
