@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:smartcart/screens/home_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+      SmartCart()
+    );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SmartCart extends StatelessWidget {
+  const SmartCart({super.key});
 
   // This widget is the root of your application.
   @override
