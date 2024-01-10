@@ -18,100 +18,168 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // List<Cart>? carts;
     return Scaffold(
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>(
-              (Set<MaterialState> states) => states.contains(MaterialState.selected) ?
-                  const TextStyle(color: Colors.white, fontWeight: FontWeight.w600) :
-                  const TextStyle(color: Color.fromRGBO(0, 130, 13, 0.6), fontWeight: FontWeight.w600)
-          ),
-          iconTheme: MaterialStateProperty.resolveWith<IconThemeData>(
-                (Set<MaterialState> states) => states.contains(MaterialState.selected) ?
-                  const IconThemeData(color: Colors.white) :
-                  const IconThemeData(color: Color.fromRGBO(0, 130, 13, 0.6))
-          ),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 96, 232, 142),
+        title: const Text('Home',
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w500
+            )
         ),
-        child: NavigationBar(
-          height: 70,
-          backgroundColor: const Color.fromARGB(255, 100, 232, 142),
-          indicatorShape: const CircleBorder(),
-          indicatorColor: const Color.fromRGBO(100, 232, 142, 0),
-          //indicatorSize: ,
-          selectedIndex: currentPageIndex,
-          destinations: const [
-            NavigationDestination(
-                icon: Icon(Icons.add_shopping_cart, size: 30),
-                label: 'Novo Carrinho'
-            ),
-            NavigationDestination(
-                icon: Icon(Icons.history, size: 30),
-                label: 'Histórico'
-            ),
-          ],
-          onDestinationSelected: (selectedPageIndex) {
-            setState(() { currentPageIndex = selectedPageIndex; });
-          },
-        ),
+        titleSpacing: 30,
       ),
-      body: <Widget>[
-        SizedBox(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Ink(
-                  padding: const EdgeInsets.all(15),
-                  decoration: const ShapeDecoration(
-                      color: Color.fromARGB(255, 96, 232, 142),
-                      shape: CircleBorder()
-                  ),
-                  child: IconButton(
-                      icon: const Icon(Icons.add_shopping_cart,
-                          color: Colors.white
-                      ),
-                      iconSize: 80,
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (newContext) => MultiProvider(
-                              providers: [
-                                ChangeNotifierProvider(create: (newContext) => Cart())
-                              ],
-                              child: const CartScreen(),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(35, 100, 35, 0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: ElevatedButton(
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (newContext) => MultiProvider(
+                          providers: [
+                            ChangeNotifierProvider(create: (newContext) => Cart())
+                          ],
+                          child: const CartScreen(),
+                        )
+                    )).then((finished) {
+                      if (finished) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Carrinho salvo!'),
+                              behavior: SnackBarBehavior.floating,
                             )
-                        )).then((finished) {
-                          if (finished) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Carrinho salvo!'),
-                                  behavior: SnackBarBehavior.floating,
-                                )
-                            );
-                          }
-                          else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Desculpe! Um erro ocorreu...'),
-                                    behavior: SnackBarBehavior.floating
-                                )
-                            );
-                          }
-                        });
+                        );
                       }
+                      else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Desculpe! Um erro ocorreu...'),
+                                behavior: SnackBarBehavior.floating
+                            )
+                        );
+                      }
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 96, 232, 142),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)
+                    ),
+                    minimumSize: const Size(300, 100)
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.add_shopping_cart_outlined,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                          child: Text('Novo Carrinho',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text('Novo Carrinho', style: TextStyle(color: Colors.grey)),
-                )
-              ],
-            ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: ElevatedButton(
+                  onPressed: (){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Ainda em desenvolvimento'),
+                            behavior: SnackBarBehavior.floating
+                        )
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 96, 232, 142),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)
+                      ),
+                      minimumSize: const Size(300, 100)
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_note,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                          child: Text('Listas de Compras',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: ElevatedButton(
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (newContext) => const HistoryScreen()
+                    ));
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 96, 232, 142),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)
+                      ),
+                      minimumSize: const Size(300, 100)
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.history,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                          child: Text('Histórico',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        const HistoryScreen()
-      ][currentPageIndex]
+      ),
     );
   }
 }
