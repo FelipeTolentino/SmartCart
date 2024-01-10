@@ -1,22 +1,24 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:smartcart/data/current_shared.dart';
+import 'package:provider/provider.dart';
+import 'package:smartcart/data/DAO_cart.dart';
+import 'package:smartcart/models/history.dart';
 import 'package:smartcart/screens/cart_screen.dart';
+import '../models/cart.dart';
 import 'package:smartcart/screens/history_screen.dart';
 
-class NewCartScreen extends StatefulWidget {
-  const NewCartScreen({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<NewCartScreen> createState() => _NewCartScreenState();
+  State<Home> createState() => _HomeState();
 }
 
-class _NewCartScreenState extends State<NewCartScreen> {
+class _HomeState extends State<Home> {
   int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    // List<Cart>? carts;
     return Scaffold(
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
@@ -73,15 +75,30 @@ class _NewCartScreenState extends State<NewCartScreen> {
                       iconSize: 80,
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(
-                            builder: (newContext) => CurrentShared(
-                              cart: Cart(
-                                description: 'Nova Compra',
-                                market: 'Mercado',
-                                date: DateFormat('dd/MM/yyyy').format(DateTime.now())
-                              ),
-                              child: CartScreen(homeContext: context)
+                            builder: (newContext) => MultiProvider(
+                              providers: [
+                                ChangeNotifierProvider(create: (newContext) => Cart())
+                              ],
+                              child: const CartScreen(),
                             )
-                        ));
+                        )).then((finished) {
+                          if (finished) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Carrinho salvo!'),
+                                  behavior: SnackBarBehavior.floating,
+                                )
+                            );
+                          }
+                          else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Desculpe! Um erro ocorreu...'),
+                                    behavior: SnackBarBehavior.floating
+                                )
+                            );
+                          }
+                        });
                       }
                   ),
                 ),
@@ -93,7 +110,7 @@ class _NewCartScreenState extends State<NewCartScreen> {
             ),
           ),
         ),
-        const History()
+        const HistoryScreen()
       ][currentPageIndex]
     );
   }

@@ -1,32 +1,21 @@
 import 'package:flutter/material.dart';
-import '../data/current_shared.dart';
+import 'package:smartcart/models/item.dart';
 import '../utils/utils.dart';
 
-class HistoryCartItem extends StatefulWidget {
-  HistoryCartItem({
-    required this.description,
-    required this.quantity,
-    required this.price,
-    super.key
-  });
+class HistoryItemCard extends StatefulWidget {
+  const HistoryItemCard({required this.item, super.key});
 
-  String description;
-  int quantity;
-  double price;
+  final Item item;
 
-  double itemTotalPrice() {
-    return quantity * price;
-  }
-
-  HistoryCartItem thisItem() {
+  HistoryItemCard thisItem() {
     return this;
   }
 
   @override
-  State<HistoryCartItem> createState() => _HistoryCartItemState();
+  State<HistoryItemCard> createState() => _HistoryItemCardState();
 }
 
-class _HistoryCartItemState extends State<HistoryCartItem> {
+class _HistoryItemCardState extends State<HistoryItemCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -44,7 +33,7 @@ class _HistoryCartItemState extends State<HistoryCartItem> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(widget.description!,
+                child: Text(widget.item.name,
                   style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15
@@ -59,14 +48,14 @@ class _HistoryCartItemState extends State<HistoryCartItem> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('${widget.quantity} x ${Utils.doubleToCurrency(widget.price)}',
+                        Text('${widget.item.quantity} x ${Utils.doubleToCurrency(widget.item.price)}',
                             style: const TextStyle(
                                 color: Color.fromARGB(255, 67, 181, 105),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12
                             )
                         ),
-                        Text(Utils.doubleToCurrency(widget.itemTotalPrice()),
+                        Text(Utils.doubleToCurrency(widget.item.totalPrice()),
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold

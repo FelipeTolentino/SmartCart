@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smartcart/screens/home_screen.dart';
 
 void main() {
-  runApp(
-      SmartCart()
-    );
+  runApp(const SmartCart());
 }
 
 class SmartCart extends StatelessWidget {
@@ -19,7 +18,7 @@ class SmartCart extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const NewCartScreen(),
+      home: const Home(),
     );
   }
 }

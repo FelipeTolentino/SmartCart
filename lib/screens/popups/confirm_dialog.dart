@@ -28,11 +28,24 @@ class ConfirmDialog extends StatelessWidget {
           child: IconButton(
             icon: const Icon(Icons.check, color: Colors.white),
             iconSize: 40,
-            onPressed: (){
+            onPressed: () {
               Navigator.pop(context, true);
             },
           ),
         ),
+        Ink(
+          decoration: const ShapeDecoration(
+              shape: CircleBorder(),
+              color: Color.fromARGB(255, 96, 232, 142)
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.cancel, color: Colors.white),
+            iconSize: 35,
+            onPressed: () {
+              Navigator.pop(context, false);
+            },
+          ),
+        )
       ],
     );
   }

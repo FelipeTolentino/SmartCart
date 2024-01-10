@@ -1,32 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:smartcart/data/current_shared.dart';
+import 'package:smartcart/models/cart.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
-
 import '../../utils/utils.dart';
 
-class NewItemForm extends StatefulWidget {
-  NewItemForm({required this.cartContext, super.key});
+class ItemForm extends StatefulWidget {
+  ItemForm({required this.cart, this.itemIndex, super.key});
+  ItemForm.edit({required this.cart, required this.itemIndex, super.key}) {
+    if (itemIndex != null) {
+      itemNameController.text = cart.getItemName(itemIndex!);
+      itemPriceController.text =
+          Utils.doubleToCurrency(cart.getItemPrice(itemIndex!));
+      itemQnty = cart.getItemQnty(itemIndex!);
+    }
+  }
+
+  final Cart cart;
+  final int? itemIndex;
 
   final formKey = GlobalKey<FormState>();
-  final BuildContext cartContext;
 
   TextEditingController itemNameController = TextEditingController();
   TextEditingController itemPriceController = TextEditingController();
-  int newItemQnty = 1;
+  int itemQnty = 1;
 
   @override
-  State<NewItemForm> createState() => _NewItemFormState();
+  State<ItemForm> createState() => _ItemFormState();
 }
 
-class _NewItemFormState extends State<NewItemForm> {
+class _ItemFormState extends State<ItemForm> {
   @override
   Widget build(BuildContext context) {
-    var shared = CurrentShared.of(widget.cartContext);
-
     return Form(
       key: widget.formKey,
       child: AlertDialog(
-        title: const Text('Novo Produto', style: TextStyle(fontSize: 20)),
+        title: Text(widget.itemIndex == null ? 'Novo Produto' : 'Alterar Produto', style: TextStyle(fontSize: 20)),
         titlePadding: const EdgeInsets.all(15),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
         backgroundColor: Colors.white,
@@ -51,20 +58,20 @@ class _NewItemFormState extends State<NewItemForm> {
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.only(left: 10),
-                        hintText: 'Descrição',
+                        hintText: 'Nome',
                         fillColor: Colors.white70,
                         filled: true,
                         errorStyle: const TextStyle(color: Colors.red)
                     ),
                     validator: (String? input) {
                       return input != null && input.isEmpty ?
-                      'Informe uma descrição para o produto' : null;
+                      'Informe o nome do produto' : null;
                     },
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(bottom: 15),
+                padding: const EdgeInsets.only(bottom: 20),
                 child: Row(
                     children: [
                       SizedBox(
@@ -108,12 +115,13 @@ class _NewItemFormState extends State<NewItemForm> {
                           ),
                           onPressed: () {
                             setState(() {
-                              widget.newItemQnty - 1 > 0 ?
-                              widget.newItemQnty-- : widget.newItemQnty = 1;
+                              print('teste');
+                              widget.itemQnty - 1 > 0 ?
+                              widget.itemQnty-- : widget.itemQnty = 1;
                             });
                           }
                       ),
-                      Text(widget.newItemQnty.toString(),
+                      Text(widget.itemQnty.toString(),
                           style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w500)
                       ),
                       IconButton(
@@ -122,7 +130,7 @@ class _NewItemFormState extends State<NewItemForm> {
                             size: 30,
                           ),
                           onPressed: () {
-                            setState(() { widget.newItemQnty++; });
+                            setState(() { widget.itemQnty++; });
                           }
                       ),
                     ]
@@ -131,7 +139,7 @@ class _NewItemFormState extends State<NewItemForm> {
             ],
           ),
         ),
-        actionsAlignment: MainAxisAlignment.center,
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
           Ink(
             decoration: const ShapeDecoration(
@@ -141,25 +149,38 @@ class _NewItemFormState extends State<NewItemForm> {
             child: IconButton(
               icon: const Icon(Icons.check, color: Colors.white),
               iconSize: 40,
-              onPressed: (){
+              onPressed: () {
                 if (widget.formKey.currentState!.validate()) {
-                  shared.cart.addItem(
-                    description: widget.itemNameController.text,
-                    price: Utils.currencyToDouble(widget.itemPriceController.text),
-                    quantity: widget.newItemQnty,
-                    cartContext: widget.cartContext
-                  );
-                  shared.cart.updateCart();
-                  ScaffoldMessenger.of(widget.cartContext).showSnackBar(
-                    const SnackBar(
-                      content: Text('Item adicionado!'),
-                      behavior: SnackBarBehavior.floating,
-                      duration: Duration(seconds: 2),
-                      margin: EdgeInsets.only(right: 20, left: 20, bottom: 90),
-                    )
-                  );
-                  Navigator.pop(context);
+                  if (widget.itemIndex != null) {
+                    widget.cart.editItem(
+                        widget.itemIndex!,
+                        widget.itemNameController.text,
+                        Utils.currencyToDouble(widget.itemPriceController.text),
+                        widget.itemQnty
+                    );
+                  }
+                  else {
+                    widget.cart.addItem(
+                      name: widget.itemNameController.text,
+                      price: Utils.currencyToDouble(widget.itemPriceController.text),
+                      quantity: widget.itemQnty,
+                    );
+                  }
+                  Navigator.pop(context, true);
                 }
+              },
+            ),
+          ),
+          Ink(
+            decoration: const ShapeDecoration(
+                shape: CircleBorder(),
+                color: Color.fromARGB(255, 96, 232, 142)
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.cancel, color: Colors.white),
+              iconSize: 40,
+              onPressed: (){
+                Navigator.pop(context, false);
               },
             ),
           )

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smartcart/components/i_text_recognizer.dart';
 import 'package:smartcart/components/text_recognizer.dart';
-import 'package:smartcart/screens/dialogs/cart_header_form.dart';
-import 'package:smartcart/screens/dialogs/delete_cart_warning.dart';
 import 'package:text_scroll/text_scroll.dart';
+import 'package:smartcart/screens/popups/confirm_dialog.dart';
+import 'package:smartcart/screens/popups/cart_header_form.dart';
+import 'package:smartcart/screens/popups/item_form.dart';
+import 'package:smartcart/components/item_card.dart';
 import '../data/DAO_cart.dart';
-import '../data/current_shared.dart';
 import '../utils/utils.dart';
-import 'dialogs/item_form.dart';
-import './dialogs/confirm_dialog.dart';
+import '../models/cart.dart';
 
 enum InsertMethod {
   MANUALLY,
@@ -27,9 +28,7 @@ class InsertItemMethod {
 }
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({required this.homeContext, super.key});
-
-  final BuildContext homeContext;
+  const CartScreen({super.key});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -37,18 +36,16 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   final formKey = GlobalKey<FormState>();
+
   late ImagePicker picker = ImagePicker();
   late ITextRecognizer recognizer = MLKitTextRecognizer();
-  var insertMethod = InsertItemMethod();
 
   Future<String?> obtainImage(ImageSource source) async {
       final file = await picker.pickImage(source: source);
       return file?.path;
   }
 
-  void refreshMe() {
-    setState(() {});
-  }
+  var insertMethod = InsertItemMethod();
 
   @override
   void dispose() {
@@ -60,44 +57,66 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var shared = CurrentShared.of(context);
-
-    shared.refreshCartScreen = refreshMe;
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 96, 232, 142),
-        leading: BackButton(
-          color: Colors.white,
-          onPressed: () { 
-            if (shared.cart.items.isNotEmpty) {
-              showDialog(
-                context: context,
-                builder: (context) => const DeleteCartWarning()
-              );
-            }
-            else {
-              Navigator.pop(context);
-            }
-          },
+        leading: Consumer<Cart>(
+          builder: (BuildContext newContext, Cart cart, _) {
+            return BackButton(
+              color: Colors.white,
+              onPressed: () {
+                if (cart.items.isNotEmpty) {
+                  showDialog(
+                      context: context,
+                      builder: (context) => ConfirmDialog(
+                          title: 'Atenção!',
+                          message: 'Ao retornar desta tela os itens do carrinho serão perdidos'
+                      )
+                  ).then((confirmed) {
+                    if (confirmed) Navigator.pop(context);
+                  });
+                }
+                else {
+                  Navigator.pop(context);
+                }
+              },
+            );
+          }
         ),
-        title: TextScroll(
-          '${shared.cart.description} - ${shared.cart.market} - ${shared.cart.date}       ',
-          velocity: const Velocity(pixelsPerSecond: Offset(30, 0)),
-          delayBefore: const Duration(seconds: 3),
-          pauseBetween: const Duration(seconds: 5),
-          style: const TextStyle(fontSize: 15, color: Colors.white)
+        title: Consumer<Cart>(
+          builder: (BuildContext newContext, Cart cart, _) {
+            return TextScroll(
+                '${cart.description} - ${cart.market} - ${cart.date}       ',
+                velocity: const Velocity(pixelsPerSecond: Offset(30, 0)),
+                delayBefore: const Duration(seconds: 3),
+                pauseBetween: const Duration(seconds: 5),
+                style: const TextStyle(fontSize: 15, color: Colors.white)
+            );
+          }
         ),
         actions: [
-          IconButton(
-              icon: const Icon(Icons.edit, color: Colors.white),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (newContext) => CartHeaderForm(cartContext: context)
-                ).then((value) => setState((){}));
-              }
+          Consumer<Cart>(
+            builder: (BuildContext content, Cart cart, _) {
+              return IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (newContext) => CartHeaderForm(cart: cart)
+                    ).then((confirmed) {
+                      if (confirmed) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Informações alteradas!'),
+                                behavior: SnackBarBehavior.floating
+                            )
+                        );
+                      }
+                    });
+                  }
+              );
+            }
           )
         ],
       ),
@@ -122,60 +141,79 @@ class _CartScreenState extends State<CartScreen> {
                               padding: EdgeInsets.only(right: 10),
                               child: Icon(Icons.shopping_basket, size: 35, color: Colors.black54),
                             ),
-                            Text(shared.cart.itemQuantity > 1 ?
-                              '${shared.cart.itemQuantity} itens' :
-                              shared.cart.itemQuantity > 0 ?
-                              '1 item' : 'Vazio',
-                                style: const TextStyle(
-                                    fontSize: 15, fontWeight:
+                            Consumer<Cart>(
+                              builder: (BuildContext context, Cart cart, _) {
+                                return Text(cart.itemQuantity > 1 ?
+                                '${cart.itemQuantity} itens' :
+                                cart.itemQuantity > 0 ?
+                                '1 item' : 'Vazio',
+                                    style: const TextStyle(
+                                        fontSize: 15, fontWeight:
                                     FontWeight.w400,
-                                    color: Colors.black54
-                                )
-                            ),
+                                        color: Colors.black54
+                                    )
+                                );
+                              }
+                            )
                           ],
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      onLongPress: () {
-                        insertMethod.changeMethod();
-                        setState(() {});
-                      },
-                      onTap: () async {
-                        if (insertMethod.method == InsertMethod.MANUALLY) {
-                          showDialog(
-                              context: context,
-                              builder: (newContext) => NewItemForm(cartContext: context)
-                          ).then((value) => { setState((){ }) });
-                        }
-                        else {
-                          final imgPath = await obtainImage(ImageSource.gallery);
-                          print('TEXT: ${await recognizer.processImage(imgPath!)}');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Desculpe! Essa opção ainda não está em funcionamento'),
-                                behavior: SnackBarBehavior.floating,
-                                duration: Duration(seconds: 5),
-                                margin: EdgeInsets.only(left: 20, right: 20, bottom: 100),
-                            )
-                          );
-                        }
-                      },
-                      child: Material(
-                        color: const Color.fromARGB(255, 96, 232, 142),
-                        child: Ink(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const ShapeDecoration(
-                              color: Colors.white,
-                              shape: CircleBorder(),
-                          ),
-                          child: Icon(
-                              insertMethod.icon,
-                              color: const Color.fromARGB(255, 96, 232, 142),
-                              size: 40
+                    Consumer<Cart>(
+                      builder: (BuildContext context, Cart cart, _) {
+                        return GestureDetector(
+                          onLongPress: () {
+                            insertMethod.changeMethod();
+                            setState(() {});
+                          },
+                          onTap: () async {
+                            if (insertMethod.method == InsertMethod.MANUALLY) {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => ItemForm(cart: cart)
+                              ).then((confirmed) {
+                                if (confirmed) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Item adicionado!'),
+                                        behavior: SnackBarBehavior.floating,
+                                        duration: Duration(seconds: 2),
+                                        margin: EdgeInsets.only(right: 20, left: 20, bottom: 90),
+                                      )
+                                  );
+                                }
+                              });
+                            }
+                            else {
+                              final imgPath = await obtainImage(ImageSource.gallery);
+                              print('TEXT: ${await recognizer.processImage(imgPath!)}');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Desculpe! Essa opção ainda não está em funcionamento'),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: Duration(seconds: 5),
+                                    margin: EdgeInsets.only(left: 20, right: 20, bottom: 100),
+                                  )
+                              );
+                            }
+                          },
+                          child: Material(
+                            color: const Color.fromARGB(255, 96, 232, 142),
+                            child: Ink(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const ShapeDecoration(
+                                color: Colors.white,
+                                shape: CircleBorder(),
+                              ),
+                              child: Icon(
+                                  insertMethod.icon,
+                                  color: const Color.fromARGB(255, 96, 232, 142),
+                                  size: 40
+                              ),
                             ),
-                        ),
-                      ),
+                          ),
+                        );
+                      }
                     ),
                     SizedBox(
                       width: 165,
@@ -190,12 +228,16 @@ class _CartScreenState extends State<CartScreen> {
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black38
                             )),
-                            Text(Utils.doubleToCurrency(shared.cart.totalPrice),
-                                style: const TextStyle(
-                                    fontSize: 27,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black38
-                                )
+                            Consumer<Cart>(
+                              builder: (BuildContext newContext, Cart cart, _) {
+                                return Text(Utils.doubleToCurrency(cart.totalPrice),
+                                  style: const TextStyle(
+                                      fontSize: 27,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black38
+                                  )
+                                );
+                              }
                             )
                           ],
                         ),
@@ -206,12 +248,16 @@ class _CartScreenState extends State<CartScreen> {
             ),
             SizedBox(
               height: 600, width: 350,
-              child: ListView.builder(
-                itemCount: shared.cart.items.length,
-                itemBuilder: (context, index) {
-                  return shared.cart.items[index];
-                },
-              ),
+              child: Consumer<Cart>(
+                builder: (BuildContext newContext, Cart cart, _) {
+                  return ListView.builder(
+                    itemCount: cart.items.length,
+                    itemBuilder: (context, index) {
+                      return ItemCard(itemIndex: index);
+                    },
+                  );
+                }
+              )
             ),
             Padding(
               padding: const EdgeInsets.only(top: 5, bottom: 15),
@@ -220,54 +266,40 @@ class _CartScreenState extends State<CartScreen> {
                     shape: CircleBorder(),
                     color: Color.fromARGB(255, 96, 232, 142),
                 ),
-                child: IconButton(
-                  icon: const Icon(Icons.shopping_cart_checkout, color: Colors.white),
-                  iconSize: 50,
-                  onPressed: () async {
-                    if (shared.cart.items.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Não há itens no carrinho!'),
-                            behavior: SnackBarBehavior.floating,
-                            duration: Duration(seconds: 2),
-                            margin: EdgeInsets.fromLTRB(20, 0, 20, 100),
-                          )
-                      );
-                    }
-                    else {
-                      var checkout = false;
-                      showDialog(
-                          context: context,
-                          builder: (newContext) => ConfirmDialog(
-                              title: "Finalizando Carrinho",
-                              message: "Tem certeza que deseja finalizar o carrinho?"
-                          )
-                      ).then( (confirmed) async {
-                        if (confirmed) {
-                          var result = await DAOCart().save(shared.cart);
-                          if (result == 0) {
-                            ScaffoldMessenger.of(widget.homeContext).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Carrinho salvo!'),
-                                  behavior: SnackBarBehavior.floating,
-                                )
-                            );
-                          }
-                          else {
-                            ScaffoldMessenger.of(widget.homeContext).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Desculpe! Algum erro ocorreu...'),
-                                    behavior: SnackBarBehavior.floating
-                                )
-                            );
-                          }
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
+                child: Consumer<Cart>(
+                  builder: (BuildContext newContext, Cart cart, _) {
+                    return IconButton(
+                      icon: const Icon(Icons.shopping_cart_checkout, color: Colors.white),
+                      iconSize: 50,
+                      onPressed: () async {
+                        if (cart.items.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Não há itens no carrinho!'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 2),
+                                margin: EdgeInsets.fromLTRB(20, 0, 20, 100),
+                              )
+                          );
                         }
-                      });
-                    }
-                  },
+                        else {
+                          showDialog(
+                              context: context,
+                              builder: (newContext) => ConfirmDialog(
+                                  title: "Finalizando Carrinho",
+                                  message: "Tem certeza que deseja finalizar o carrinho?"
+                              )
+                          ).then((confirmed) async {
+                            if (confirmed) {
+                              var result = await DAOCart().saveCart(cart);
+                              if (result == 0) Navigator.pop(context, true);
+                              else Navigator.pop(context, false);
+                            }
+                          });
+                        }
+                      },
+                    );
+                  }
                 )
               )
             ),

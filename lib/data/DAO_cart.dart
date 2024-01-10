@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:smartcart/components/history_cart_card.dart';
-import 'package:smartcart/data/current_shared.dart';
 import 'package:sqflite/sqflite.dart';
-
-import '../components/cart_item.dart';
+import 'package:smartcart/models/cart.dart';
+import 'package:smartcart/models/item.dart';
 import 'database.dart';
 
 class DAOCart{
@@ -19,14 +16,14 @@ class DAOCart{
 
   static const String cartItems = 'CREATE TABLE cart_items ('
   'item_id INTEGER PRIMARY KEY AUTOINCREMENT,'
-  'item_description TEXT,'
+  'item_name TEXT,'
   'item_price ,'
   'item_quantity INTEGER,'
   'from_cart INTEGER,'
   'FOREIGN KEY (from_cart) REFERENCES carts(cart_id)'
   ');';
 
-  Future<int> save(Cart cart) async {
+  Future<int> saveCart(Cart cart) async {
     final Database db = await getDatabase();
 
     var cartValues = cartToMap(cart);
@@ -41,84 +38,85 @@ class DAOCart{
     return 0;
   }
 
-  Future<List<HistoryCartCard>> findAll() async {
+  Future<int> deleteCart(int cartID) async {
+    final Database db = await getDatabase();
+    int result = await db.delete(
+        'carts',
+        where: 'cart_id = ?',
+        whereArgs: [cartID]
+    );
+
+    return result;
+  }
+
+  Future<Cart> getCart(int cartID) async {
+    final Database db = await getDatabase();
+    final List<Map<String, dynamic>> cartsMap = await db.query(
+        'carts',
+        where: 'cart_id = ?',
+        whereArgs: [cartID]
+    );
+
+    var cartMap = cartsMap.first;
+    Cart cart = Cart.history(
+        id: cartMap['cart_id'],
+        description: cartMap['cart_description'],
+        market: cartMap['market_name'],
+        date: cartMap['date'],
+        itemQuantity: cartMap['total_items'],
+        totalPrice: cartMap['cart_price']
+    );
+
+    cart.setItems(items: await getCartItems(cartID));
+
+    return cart;
+  }
+
+  Future<List<Cart>> getAllCarts() async {
     final Database db = await getDatabase();
     final List<Map<String, dynamic>> cartsMap = await db.query('carts');
-    final List<HistoryCartCard> carts = [];
+    final List<Cart> carts = [];
     for (Map<String, dynamic> cart in cartsMap) {
-      carts.add(HistoryCartCard(
+      carts.add(Cart.history(
           id: cart['cart_id'], 
           description: cart['cart_description'], 
           market: cart['market_name'], 
           date: cart['date'], 
           itemQuantity: cart['total_items'],
-          price: cart['cart_price']
+          totalPrice: cart['cart_price']
       ));
     }
     
     return carts;
   }
 
-  Future<Cart> findThis(int cartID, BuildContext cartContext) async {
+  Future<List<Item>> getCartItems(int cartId) async {
     final Database db = await getDatabase();
-    final List<Map<String, dynamic>> cartsMap = await db.query(
-      'carts',
-      where: 'cart_id = ?',
-      whereArgs: [cartID]
+    final List<Map<String, dynamic>> itemsMap = await db.query(
+      'cart_items',
+      where: 'from_cart = ?',
+      whereArgs: [cartId]
     );
 
-    final List<Cart> carts = [];
-
-    for(Map<String, dynamic> cartMap in cartsMap) {
-      carts.add(Cart(
-        description: cartMap['cart_description'],
-        market: cartMap['market_name'],
-        date: cartMap['date']
-      ));
-
-      final List<Map<String, dynamic>> itemsMap = await db.query(
-        'cart_items',
-        where: 'from_cart = ?',
-        whereArgs: [cartID]
-      );
-
-      if (!cartContext.mounted) {
-        return Cart(
-            description: 'Nova Compra',
-            market: 'Mercado',
-            date: DateFormat('dd/MM/yyyy').format(DateTime.now())
-        );
-      }
-
-      for (Map<String, dynamic> itemMap in itemsMap) {
-        carts.first.addItem(
-            description: itemMap['item_description'],
-            price: itemMap['item_price'],
-            quantity: itemMap['item_quantity'],
-            cartContext: cartContext
-        );
-      }
-
-      carts.first.updateCart();
+    List<Item> items = [];
+    for (var itemMap in itemsMap) {
+      items.add(mapToItem(itemMap));
     }
 
-    return carts.first;
+    return items;
   }
 
-  Future<int> deleteThis(int cartID) async {
-    final Database db = await getDatabase();
-    int result = await db.delete(
-      'carts',
-      where: 'cart_id = ?',
-      whereArgs: [cartID]
+  Item mapToItem(Map<String, dynamic> itemMap) {
+    return Item(
+      name: itemMap['item_name'],
+      price: itemMap['item_price'],
+      quantity: itemMap['item_quantity']
     );
-
-    return result;
   }
 
-  Map<String, dynamic> itemToMap(CartItem item, int cartID) {
+  Map<String, dynamic> itemToMap(Item item, int cartID) {
     final Map<String, dynamic> itemMap = {};
-    itemMap['item_description'] = item.description;
+    itemMap['item_name'] = item.name;
     itemMap['item_price'] = item.price;
     itemMap['item_quantity'] = item.quantity;
     itemMap['from_cart'] = cartID;
@@ -136,15 +134,4 @@ class DAOCart{
 
     return cartMap;
   }
-
-// findLastCart() async {
-//   final Database db = await getDatabase();
-//   final List<Map<String, dynamic>> cart = await db.query(
-//     'carts',
-//     orderBy: 'id DESC',
-//     limit: 1
-//   );
-//
-//   return cart;
-// }
 }
