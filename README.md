@@ -16,6 +16,6 @@ O **SmartCart** é um aplicativo que permite aos usuários criar e gerênciar su
   - **`utils/`** - Funções utilitárias.
 
 ## 🛠 Tecnologias Utilizadas
-- **Fluter:**
+- **Fluter**
 - **Dart**
 - **Provider**
