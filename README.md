@@ -7,11 +7,15 @@ O **SmartCart** é um aplicativo que permite aos usuários criar e gerênciar su
 - **Carrinho de Supermercado:** Controle o total de sua compra em tempo real adicionando produtos à um carrinho.
 - **Histórico de Compras:** Veja os totais de suas compras passadas e o preço pago em cada produto.
 
+## 📂 Estrutura do Projeto
+- **`lib/`** - Código-fonte do aplicativo.
+  - **`main.dart`** - Ponto de entrada do aplicativo.
+  - **`screens/`** - Telas e interfaces do usuário.
+  - **`data/`** - Classes de acesso ao banco de dados.
+  - **`models/`** - Modelos de dados e classes.
+  - **`utils/`** - Funções utilitárias.
 
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠 Tecnologias Utilizadas
+- **Fluter:**
+- **Dart**
+- **Provider**
