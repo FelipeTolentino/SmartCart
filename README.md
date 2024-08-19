@@ -4,7 +4,6 @@ O **SmartCart** é um aplicativo que permite aos usuários criar e gerênciar su
 
 ## 📦 Funcionalidades
 - **Criar Listas de Compras:** Crie listas de compras a serem feitas.
-- !(https://github.com/FelipeTolentino/SmartCart/blob/8dcb66d7eda37a0a63905ccd6eaa1a15bb2ef072/repo/tobuylist.jpg)
 - **Carrinho de Supermercado:** Controle o total de sua compra em tempo real adicionando produtos à um carrinho.
 - **Histórico de Compras:** Veja os totais de suas compras passadas e o preço pago em cada produto.
 
@@ -20,3 +19,5 @@ O **SmartCart** é um aplicativo que permite aos usuários criar e gerênciar su
 - **Fluter**
 - **Dart**
 - **Provider**
+
+!(https://github.com/FelipeTolentino/SmartCart/blob/8dcb66d7eda37a0a63905ccd6eaa1a15bb2ef072/repo/tobuylist.jpg)
