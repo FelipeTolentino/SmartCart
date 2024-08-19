@@ -21,7 +21,6 @@ O **SmartCart** é um aplicativo que permite aos usuários criar e gerênciar su
 - **Provider**
 
 # 📱 Screenshots
-<img src="https://github.com/FelipeTolentino/SmartCart/blob/87ef6aece5522065656935e4ee97c8e5949336fd/repo/cartscreen.jpg" width=20% height=20%>
-<img src="https://github.com/FelipeTolentino/SmartCart/blob/8dcb66d7eda37a0a63905ccd6eaa1a15bb2ef072/repo/tobuylist.jpg" width=20% height=20%>
+<img src="https://github.com/FelipeTolentino/SmartCart/blob/87ef6aece5522065656935e4ee97c8e5949336fd/repo/cartscreen.jpg" width=20% height=20%> <img src="https://github.com/FelipeTolentino/SmartCart/blob/8dcb66d7eda37a0a63905ccd6eaa1a15bb2ef072/repo/tobuylist.jpg" width=20% height=20%>
 <img src="https://github.com/FelipeTolentino/SmartCart/blob/87ef6aece5522065656935e4ee97c8e5949336fd/repo/historyscreen.jpg" width=20% height=20%>
 
