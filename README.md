@@ -20,6 +20,7 @@ O **SmartCart** é um aplicativo que permite aos usuários criar e gerênciar su
 - **Dart**
 - **Provider**
 
+# 📱 Screenshots
 ![Tela de Carrinho de Compra](https://github.com/FelipeTolentino/SmartCart/blob/87ef6aece5522065656935e4ee97c8e5949336fd/repo/cartscreen.jpg)
 ![Tela de Listas de Compras](https://github.com/FelipeTolentino/SmartCart/blob/8dcb66d7eda37a0a63905ccd6eaa1a15bb2ef072/repo/tobuylist.jpg)
 ![Tela de Histórico](https://github.com/FelipeTolentino/SmartCart/blob/87ef6aece5522065656935e4ee97c8e5949336fd/repo/historyscreen.jpg)
